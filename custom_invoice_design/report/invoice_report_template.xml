@@ -685,12 +685,19 @@
         </div>
 
         <!-- =================== PAGE FOOTER ===================
-             Extracted by ir.actions.report._prepare_html() (class="footer")
-             and repeated on every page with the page counter substituted by
-             the minimal_layout script (class="page" / class="topage"). -->
+             Extracted by ir.actions.report._prepare_html() (class="footer"),
+             rendered through web.minimal_layout (which carries <base href> and
+             web.report_assets_common) and repeated on every page by
+             wkhtmltopdf, with the page counter substituted by the
+             minimal_layout script (class="page" / class="topage"). -->
         <div class="footer inv-footer">
             <t t-out="company.name if company else ''"/>
             &#160;&#160;·&#160;&#160;Page <span class="page"/> / <span class="topage"/>
+            <!-- Certificates strip: part of the real PDF footer, so it is
+                 printed on every page below the existing footer line. -->
+            <div class="cert-card">
+                <img src="/custom_invoice_design/static/src/img/certificates.png" alt="Certificates"/>
+            </div>
         </div>
     </template>
 </odoo>

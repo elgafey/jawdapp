@@ -2,8 +2,11 @@
 <odoo>
     <data>
         <!-- Paper format: A4 Portrait with small margins.
-             margin_bottom is 14 (not 6) so the repeated page footer has room
-             below the content instead of overlapping it. -->
+             margin_bottom is 30 (not 6) because the repeated page footer now
+             carries the certificates strip on top of the company name / page
+             counter: the footer is drawn inside the bottom margin by
+             wkhtmltopdf, so the margin has to be at least as tall as the
+             footer content (~27mm) instead of overlapping the invoice body. -->
         <record id="paperformat_custom_invoice" model="report.paperformat">
             <field name="name">Custom Invoice A4</field>
             <field name="default" eval="False"/>
@@ -12,7 +15,7 @@
             <field name="page_width">0</field>
             <field name="orientation">Portrait</field>
             <field name="margin_top">6</field>
-            <field name="margin_bottom">14</field>
+            <field name="margin_bottom">30</field>
             <field name="margin_left">6</field>
             <field name="margin_right">6</field>
             <field name="header_line" eval="False"/>

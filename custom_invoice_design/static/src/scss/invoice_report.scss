@@ -32,7 +32,10 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
 
 @page {
     size: A4 portrait;
-    margin: 6mm 6mm 14mm 6mm;
+    // The bottom margin reserves the room for the real page footer
+    // (company + page counter + certificates strip); it must stay in sync
+    // with report.paperformat.margin_bottom in report/invoice_report.xml.
+    margin: 6mm 6mm 30mm 6mm;
 }
 
 // ===========================================================================
@@ -53,12 +56,12 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .tbl-header {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         border-bottom: 2px solid $primary;
     }
     .tbl-header td {
         vertical-align: middle;
-        padding: 0 0 8px 0;
+        padding: 0 0 6px 0;
     }
     .hdr-logo { width: 24%; text-align: left; }
     .hdr-company { width: 76%; text-align: right; }
@@ -89,7 +92,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         background: $primary;
         border-radius: $radius;
         padding: 7px 12px;
-        margin: 0 0 8px 0;
+        margin: 0 0 6px 0;
     }
     .title-band-tbl {
         width: 100%;
@@ -138,7 +141,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .tbl-footer {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         page-break-inside: avoid;
     }
     .tbl-cards > tbody > tr > td,
@@ -152,7 +155,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .info-card {
         background: $tint;
         border-radius: $radius;
-        padding: 5px 9px;
+        padding: 4px 8px;
     }
     .card-title {
         font-size: .7em;
@@ -178,7 +181,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         line-height: 1.2;
     }
     .tbl-detail td {
-        padding: 2.5px 2px;
+        padding: 2px 2px;
         vertical-align: top;
         border-top: 1px solid $hairline;
     }
@@ -208,7 +211,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .tbl-lines {
         width: 100%;
         border-collapse: collapse;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         font-size: 1.02em;
     }
     .tbl-lines thead {
@@ -241,7 +244,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         opacity: .93;
     }
     .tbl-lines tbody td {
-        padding: 4px 5px;
+        padding: 3px 5px;
         border: none;
         border-bottom: 1px solid $hairline;
         vertical-align: middle;
@@ -299,7 +302,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         width: 100%;
         border-collapse: separate;   // keeps the rounded card corners intact
         border-spacing: 0;
-        margin-bottom: 8px;
+        margin-bottom: 6px;
         page-break-inside: avoid;
     }
     .tbl-bottom > tbody > tr > td {
@@ -312,7 +315,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         width: 44%;
         background: $tint;
         border-radius: $radius;
-        padding: 6px 10px;
+        padding: 4px 8px;
         text-align: center;
     }
     .qr-cap {
@@ -427,7 +430,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         line-height: 1.25;
     }
     .tbl-kv td {
-        padding: 2.5px 2px;
+        padding: 2px 2px;
         vertical-align: middle;
         border-top: 1px solid $hairline;
     }
@@ -464,12 +467,12 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     // The base font size comes from QWeb (font_pt); these only tighten the
     // paddings/margins so a long invoice still fits on one page.
     &.fit-a {
-        .tbl-lines thead th { padding: 6px 4px; }
-        .tbl-lines tbody td { padding: 5px 5px; }
-        .tbl-detail td { padding: 3px 2px; }
-        .tbl-kv td { padding: 3px 2px; }
-        .tbl-totals td { padding: 5px 10px; }
-        .row-grand td { padding: 8px 10px; }
+        .tbl-lines thead th { padding: 5px 4px; }
+        .tbl-lines tbody td { padding: 4px 5px; }
+        .tbl-detail td { padding: 2px 2px; }
+        .tbl-kv td { padding: 2px 2px; }
+        .tbl-totals td { padding: 4px 10px; }
+        .row-grand td { padding: 6px 10px; }
     }
 
     &.fit-c {
@@ -548,4 +551,27 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     color: $muted;
     padding-top: 3mm;
     font-family: $font-en;
+}
+
+// ---------------------------------------------------------------------------
+// Certificates strip. It lives inside the REAL page footer (div.footer), which
+// ir.actions.report._prepare_html() lifts out of the document and repeats on
+// every page - so it is NOT a descendant of .invoice-container and these rules
+// must stay at the top level to match.
+// ---------------------------------------------------------------------------
+.cert-card {
+    margin-top: 6px;
+    padding: 4px 8px;
+    background: $tint;
+    border: 1px solid $hairline;
+    border-radius: $radius;
+    text-align: center;
+    page-break-inside: avoid;
+}
+.cert-card img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    max-height: 1.6cm;
+    margin: 0 auto;
 }
