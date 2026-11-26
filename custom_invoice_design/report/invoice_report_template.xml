@@ -120,24 +120,27 @@
              the item name (the name column holds ~38 chars), +1 per payment
              row.
              font_pt follows row_weight CONTINUOUSLY (not in steps):
-                few rows   -> 10.6pt (bigger, airier text)
-                 average    -> ~10.4pt
-                many rows  -> shrinks only down to a readable floor of 9.7pt
+                short invoice -> up to 12.5pt, so the WHOLE document scales up
+                 average        -> shrinks gradually
+                many rows      -> down to a readable floor of 9.7pt
              Below the floor the invoice continues on the next page (rows
              never split and the table header repeats) instead of shrinking
              further, so a long invoice stays readable.
              Every font size in the stylesheet is relative (em) to this base,
-             so the whole document scales together. fit-a/fit-b/fit-c/fit-d
-             only tighten the spacing for long invoices.
-              Knobs: 10.6 (start size), 9.7 (readable floor), 0.032 (how fast
-             the size drops with the row count). -->
+             so the whole document scales together. fit-a..fit-d are picked
+             from line_count, i.e. the printed product lines only:
+              1-4 -> fit-a, 5-8 -> fit-b, 9-12 -> fit-c, more than 12 -> fit-d.
+             Knobs: 12.5 (max size), 9.7 (readable floor), 3 (row_weight at which the size starts to drop), 0.12 (drop per extra row). -->
         <t t-set="row_weight" t-value="sum(
             1 + len(((l.product_id.name if l.product_id else l.name) or '')[:120]) // 40
             if l.display_type == 'product' else 1
             for l in o.invoice_line_ids) + pmt_count"/>
-        <t t-set="font_pt" t-value="max(9.7, 10.6 - max(0, row_weight - 8) * 0.032)"/>
+        <!-- Product lines really printed: regular_lines already excludes the
+             down payment lines, the sections and the notes. -->
+        <t t-set="line_count" t-value="len(regular_lines)"/>
+        <t t-set="font_pt" t-value="min(12.5, max(9.7, 12.5 - max(0, row_weight - 3) * 0.12))"/>
         <t t-set="fit_class"
-           t-value="'fit-a' if row_weight &lt;= 10 else ('fit-b' if row_weight &lt;= 17 else ('fit-c' if row_weight &lt;= 25 else 'fit-d'))"/>
+           t-value="'fit-a' if line_count &lt;= 4 else ('fit-b' if line_count &lt;= 8 else ('fit-c' if line_count &lt;= 12 else 'fit-d'))"/>
 
         <div t-att-class="'article invoice-container ' + fit_class + (' has-dp' if has_dp else '') + (' has-local' if show_local else '')"
              t-attf-style="font-size: {{ '%.2f' % font_pt }}pt"

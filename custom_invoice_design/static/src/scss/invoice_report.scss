@@ -15,11 +15,13 @@
 // ============================================================================
 
 // ---- brand palette (defined once) -----------------------------------------
-$primary:  #0b4a54;   // dark teal  — header line, table head, grand total
+$primary:  #0b4a54;   // dark teal  — TEXT and thin rules only, never a fill
 $accent:   #14808f;   // teal       — section titles, accents
-$tint:     #eef6f7;   // light tint — card backgrounds
+$tint:     #f7fbfc;   // light tint — card backgrounds
+$tint-strong: #eaf3f5;   // stronger tint — title band, table head, total row
 $text:     #1f2933;   // main text
 $muted:    #6b7785;   // labels
+$muted-dark: #3d5a62;   // bilingual labels sitting on a tint
 $hairline: #d9e2e6;   // 1px separators
 $zebra:    #f6fafb;   // even rows
 $danger:   #b3261e;   // discount value
@@ -78,7 +80,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         letter-spacing: .2px;
     }
     .co-meta {
-        font-size: .76em;
+        font-size: .8em;
         color: $muted;
         margin-top: 2px;
         line-height: 1.4;
@@ -89,10 +91,12 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
 
     // ------------------------------------------------------------ title band
     .title-band {
-        background: $primary;
+        background: $tint-strong;
+        border-bottom: 2px solid $primary;
         border-radius: $radius;
         padding: 7px 12px;
         margin: 0 0 6px 0;
+        -webkit-print-color-adjust: exact;
     }
     .title-band-tbl {
         width: 100%;
@@ -105,7 +109,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .title-band-main { text-align: left; }
     .title-band-meta { width: 33%; text-align: right; }
     .inv-title {
-        color: #fff;
+        color: $primary;
         font-size: 1.32em;
         font-weight: 800;
         letter-spacing: 1px;
@@ -128,9 +132,10 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         display: inline-block;
         background: #fff;
         color: $primary;
+        border: 1px solid $primary;
         border-radius: 10px;
-        padding: 1px 8px;
-        font-size: .66em;
+        padding: 1px 6px;
+        font-size: .8em;
         font-weight: 700;
         letter-spacing: .3px;
         white-space: nowrap;
@@ -156,9 +161,10 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         background: $tint;
         border-radius: $radius;
         padding: 4px 8px;
+        -webkit-print-color-adjust: exact;
     }
     .card-title {
-        font-size: .7em;
+        font-size: .75em;
         font-weight: 800;
         letter-spacing: 1.1px;
         text-transform: uppercase;
@@ -220,28 +226,30 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .tbl-lines tr { page-break-inside: avoid; }
 
     .tbl-lines thead th {
-        background: $primary;
-        color: #fff;
+        background: $tint-strong;
+        color: $primary;
         padding: 5px 5px;
         text-align: center;
-        font-size: .78em;
+        font-size: .8em;
         font-weight: 700;
         letter-spacing: .3px;
         vertical-align: middle;
-        border: none;
+        border-top: 1px solid $primary;
+        border-bottom: 2px solid $primary;
+        -webkit-print-color-adjust: exact;
     }
     .tbl-lines thead th .th-en {
         display: block;
         line-height: 1.15;
         text-transform: uppercase;
+        color: $primary;
     }
     .tbl-lines thead th .th-ar {
         display: block;
-        font-size: .92em;
+        color: $muted-dark;
         direction: rtl;
         margin-top: 1px;
         font-family: $font-ar;
-        opacity: .93;
     }
     .tbl-lines tbody td {
         padding: 3px 5px;
@@ -251,15 +259,20 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         color: $text;
         font-weight: 600;
     }
-    .tbl-lines tbody tr:nth-child(even) td { background: $zebra; }
+    .tbl-lines tbody tr:nth-child(even) td {
+        background: $zebra;
+        -webkit-print-color-adjust: exact;
+    }
 
     .tbl-lines .c-seq  { width: 3%;  text-align: center; }
     .tbl-lines .c-code {
         width: 11%;
         text-align: center;
-        color: $muted;
-        font-size: .84em;
+        font-size: .95em;
     }
+    // Body cells only: on the header cell the shared head colour must win, so
+    // "Item Code / Barcode" looks like every other column title.
+    .tbl-lines tbody .c-code { color: $muted; }
     .tbl-lines .c-desc {
         width: 33%;
         text-align: left;
@@ -285,6 +298,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         text-align: left;
         padding: 5px 8px;
         border-bottom: 1px solid $hairline;
+        -webkit-print-color-adjust: exact;
     }
     .tbl-lines .row-note td {
         color: $muted;
@@ -317,9 +331,10 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         border-radius: $radius;
         padding: 4px 8px;
         text-align: center;
+        -webkit-print-color-adjust: exact;
     }
     .qr-cap {
-        font-size: .7em;
+        font-size: .8em;
         font-weight: 800;
         letter-spacing: 1.1px;
         text-transform: uppercase;
@@ -340,7 +355,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         background: #fff;
         border: 1px solid $hairline;
         border-radius: $radius;
-        padding: 4px 6px;   // inset so the teal total row never touches the corners
+        padding: 4px 6px;   // inset so the highlighted total row never touches the corners
     }
     .tbl-totals {
         width: 100%;
@@ -380,7 +395,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     }
     .tbl-totals .tot-local-discount { color: $danger; }
     .tbl-totals .tot-local-head td {
-        font-size: .74em;
+        font-size: .8em;
         font-weight: 800;
         color: $muted;
         letter-spacing: .3px;
@@ -392,7 +407,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     // amounts themselves instead of being driven by the whole caption.
     .tbl-totals .tot-local-head .tot-local-head-cell {
         text-align: right;
-        font-size: .7em;
+        font-size: .8em;
         font-weight: 800;
         color: $muted;
         letter-spacing: .3px;
@@ -406,18 +421,24 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         font-family: $font-ar;
         letter-spacing: 0;
     }
-    // the teal grand-total row keeps white text and drops the separator
+    // The "Total Amount" / "Final Total" row: a light tint with dark teal
+    // rules instead of a dark fill, so the ink stays light. The SAR-amount
+    // cell keeps the same dark text (the !important below beats .tot-local).
     .row-grand .tot-local { border-right: none; }
     .row-grand td {
-        background: $primary;
-        color: #fff !important;
+        background: $tint-strong;
+        color: $primary !important;
         font-size: 1.12em;
         font-weight: 800;
-        border-bottom: none;
+        border-top: 2px solid $primary;
+        border-bottom: 2px solid $primary;
         padding: 8px 10px;
+        -webkit-print-color-adjust: exact;
     }
     .row-grand .tot-lbl,
-    .row-grand .tot-lbl .ar { color: #fff; }
+    .row-grand .tot-lbl .ar { color: $primary; }
+    // ... even when it is the very last row of the card
+    .tbl-totals tr:last-child.row-grand td { border-bottom: 2px solid $primary; }
     .row-payment td { font-size: .88em; }
     .row-payment .tot-lbl { color: $muted; }
     .row-payment .tot-val { color: $text; }
@@ -464,15 +485,28 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .tbl-kv-wide .i-val[colspan="3"] { width: 86%; }
 
     // ------------------------------------------------- fit scale (spacing)
-    // The base font size comes from QWeb (font_pt); these only tighten the
-    // paddings/margins so a long invoice still fits on one page.
+    // The base font size comes from QWeb (font_pt); fit-a opens the layout up
+    // for a short invoice, fit-b..fit-d tighten the paddings/margins so a long
+    // invoice still fits on one page.
+    /* fit-a = short invoice (1-4 printed lines): the QWeb base font is up to
+       12.5pt here, so the rows get ~+30% more padding, the QR grows to 3.6cm,
+       the logo to 80px and the cards a little more room, so the bigger text
+       breathes instead of looking cramped. */
     &.fit-a {
-        .tbl-lines thead th { padding: 5px 4px; }
-        .tbl-lines tbody td { padding: 4px 5px; }
-        .tbl-detail td { padding: 2px 2px; }
-        .tbl-kv td { padding: 2px 2px; }
-        .tbl-totals td { padding: 4px 10px; }
-        .row-grand td { padding: 6px 10px; }
+        .tbl-header td { padding-bottom: 8px; }
+        .title-band { padding: 8px 12px; }
+        .tbl-lines thead th { padding: 6px 5px; }
+        .tbl-lines tbody td { padding: 5px 6px; }
+        .tbl-lines .row-section td { padding: 6px 8px; }
+        .tbl-lines .row-note td { padding: 5px 8px; }
+        .tbl-detail td { padding: 3px 2px; }
+        .tbl-kv td { padding: 3px 2px; }
+        .tbl-totals td { padding: 5px 10px; }
+        .row-grand td { padding: 7px 10px; }
+        .info-card { padding: 6px 10px; }
+        .qr-card { padding: 6px 10px; }
+        .qr-img { width: 3.6cm; height: 3.6cm; }
+        .co-logo { max-height: 80px; }
     }
 
     &.fit-c {
@@ -567,6 +601,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     border-radius: $radius;
     text-align: center;
     page-break-inside: avoid;
+    -webkit-print-color-adjust: exact;
 }
 .cert-card img {
     display: block;
