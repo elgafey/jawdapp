@@ -15,15 +15,16 @@
 // ============================================================================
 
 // ---- brand palette (defined once) -----------------------------------------
-$primary:  #0b4a54;   // dark teal  — TEXT and thin rules only, never a fill
-$accent:   #14808f;   // teal       — section titles, accents
-$tint:     #f7fbfc;   // light tint — card backgrounds
-$tint-strong: #eaf3f5;   // stronger tint — title band, table head, total row
+$primary:  #0b4a54;   // dark teal  — brand rules and the single dark fill
+$accent:   #14808f;   // teal       — card bars, section titles
+$mid:      #cfe6ea;   // medium tint — title band, table head
+$tint:     #eef6f7;   // light tint — card backgrounds
+$tint-strong: #e1f0f3;   // stronger tint
+$gold:     #c8963e;   // small accents only: double rule, total-row top rule
 $text:     #1f2933;   // main text
-$muted:    #6b7785;   // labels
-$muted-dark: #3d5a62;   // bilingual labels sitting on a tint
+$muted:    #5b6b75;   // labels
 $hairline: #d9e2e6;   // 1px separators
-$zebra:    #f6fafb;   // even rows
+$zebra:    #f4f9fa;   // even rows
 $danger:   #b3261e;   // discount value
 $radius:   6px;
 
@@ -55,15 +56,20 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     [dir="rtl"] { font-family: $font-ar; }
 
     // ---------------------------------------------------------------- header
+    // Double rule under the company header: a 3px brand line straight under the
+    // cells, then a 2px gold hairline. `separate` (spacing 0) is what lets the
+    // two borders stack instead of collapsing into one.
     .tbl-header {
         width: 100%;
-        border-collapse: collapse;
+        border-collapse: separate;
+        border-spacing: 0;
         margin-bottom: 6px;
-        border-bottom: 2px solid $primary;
+        border-bottom: 2px solid $gold;
     }
     .tbl-header td {
         vertical-align: middle;
         padding: 0 0 6px 0;
+        border-bottom: 3px solid $primary;
     }
     .hdr-logo { width: 24%; text-align: left; }
     .hdr-company { width: 76%; text-align: right; }
@@ -91,8 +97,9 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
 
     // ------------------------------------------------------------ title band
     .title-band {
-        background: $tint-strong;
-        border-bottom: 2px solid $primary;
+        background: $mid;
+        border-left: 4px solid $primary;
+        border-bottom: 3px solid $primary;
         border-radius: $radius;
         padding: 7px 12px;
         margin: 0 0 6px 0;
@@ -128,17 +135,18 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         padding: 1px 0;
         text-align: right;
     }
+    // Small solid brand chips: a tiny dark area, so the ink stays balanced.
     .chip {
         display: inline-block;
-        background: #fff;
-        color: $primary;
-        border: 1px solid $primary;
+        background: $primary;
+        color: #fff;
         border-radius: 10px;
         padding: 1px 6px;
         font-size: .8em;
         font-weight: 700;
         letter-spacing: .3px;
         white-space: nowrap;
+        -webkit-print-color-adjust: exact;
     }
 
     // ----------------------------------------------------------------- cards
@@ -157,8 +165,14 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .col-card { width: 49%; }
     .col-gap { width: 2%; }
 
+    // Cards: light tint, a 4px teal bar on the left edge, hairline on the
+    // other three sides, 6px radius.
     .info-card {
         background: $tint;
+        border-left: 4px solid $accent;
+        border-top: 1px solid $hairline;
+        border-right: 1px solid $hairline;
+        border-bottom: 1px solid $hairline;
         border-radius: $radius;
         padding: 4px 8px;
         -webkit-print-color-adjust: exact;
@@ -172,6 +186,17 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         padding-bottom: 4px;
         border-bottom: 1px solid $hairline;
         margin-bottom: 2px;
+    }
+    // small filled gold square in front of every section title
+    .card-title::before {
+        content: "";
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: $gold;
+        margin-right: 5px;
+        vertical-align: middle;
+        -webkit-print-color-adjust: exact;
     }
     .card-title .ar {
         font-family: $font-ar;
@@ -226,7 +251,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .tbl-lines tr { page-break-inside: avoid; }
 
     .tbl-lines thead th {
-        background: $tint-strong;
+        background: $mid;
         color: $primary;
         padding: 5px 5px;
         text-align: center;
@@ -234,8 +259,10 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         font-weight: 700;
         letter-spacing: .3px;
         vertical-align: middle;
-        border-top: 1px solid $primary;
-        border-bottom: 2px solid $primary;
+        border-top: none;
+        border-bottom: 3px solid $primary;
+        border-left: none;
+        border-right: none;
         -webkit-print-color-adjust: exact;
     }
     .tbl-lines thead th .th-en {
@@ -246,7 +273,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     }
     .tbl-lines thead th .th-ar {
         display: block;
-        color: $muted-dark;
+        color: $primary;
         direction: rtl;
         margin-top: 1px;
         font-family: $font-ar;
@@ -348,6 +375,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         display: block;
         margin: 0 auto;
         background: #fff;
+        -webkit-print-color-adjust: exact;   // keeps the quiet zone white on the tint
     }
 
     .totals-card {
@@ -424,24 +452,25 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         font-family: $font-ar;
         letter-spacing: 0;
     }
-    // The "Total Amount" / "Final Total" row: a light tint with dark teal
-    // rules instead of a dark fill, so the ink stays light. The SAR-amount
-    // cell keeps the same dark text (the !important below beats .tot-local).
-    .row-grand .tot-local { border-right: none; }
+    // The ONLY dark fill on the page: the final total row (the "Final Total
+    // after Down Payment" row shares this class). Gold rule on top, white bold
+    // text; the SAR-amount cell uses the 85%-white tint instead of pure white.
+    .row-grand .tot-local {
+        border-right: none;
+        color: #d6e9ec !important;
+    }
     .row-grand td {
-        background: $tint-strong;
-        color: $primary !important;
+        background: $primary;
+        color: #fff !important;
         font-size: 1.12em;
         font-weight: 800;
-        border-top: 2px solid $primary;
-        border-bottom: 2px solid $primary;
+        border-top: 3px solid $gold;
+        border-bottom: none;
         padding: 8px 10px;
         -webkit-print-color-adjust: exact;
     }
     .row-grand .tot-lbl,
-    .row-grand .tot-lbl .ar { color: $primary; }
-    // ... even when it is the very last row of the card
-    .tbl-totals tr:last-child.row-grand td { border-bottom: 2px solid $primary; }
+    .row-grand .tot-lbl .ar { color: #fff; }
     .row-payment td { font-size: .88em; }
     .row-payment .tot-lbl { color: $muted; }
     .row-payment .tot-val { color: $text; }
