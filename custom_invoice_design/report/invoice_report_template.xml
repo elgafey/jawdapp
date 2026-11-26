@@ -29,6 +29,10 @@
     <template id="report_invoice_document">
         <t t-set="o"       t-value="o.with_context(lang=lang)"/>
         <t t-set="company" t-value="o.company_id"/>
+        <!-- Vendor bill / vendor credit note: the document is about the vendor,
+             so the ZATCA QR is dropped, the party card shows the seller and the
+             bank card may show the vendor's own bank account. -->
+        <t t-set="is_bill" t-value="o.move_type in ('in_invoice', 'in_refund')"/>
 
         <!-- ============ DOWN PAYMENT DETECTION (PRINTING ONLY) ============
              A final invoice that deducts down payments carries NEGATIVE down
@@ -142,7 +146,7 @@
         <t t-set="fit_class"
            t-value="'fit-a' if line_count &lt;= 4 else ('fit-b' if line_count &lt;= 8 else ('fit-c' if line_count &lt;= 12 else 'fit-d'))"/>
 
-        <div t-att-class="'article invoice-container ' + fit_class + (' has-dp' if has_dp else '') + (' has-local' if show_local else '')"
+        <div t-att-class="'article invoice-container ' + fit_class + (' has-dp' if has_dp else '') + (' has-local' if show_local else '') + (' has-bill' if is_bill else '')"
              t-attf-style="font-size: {{ '%.2f' % font_pt }}pt"
              t-att-data-oe-model="o._name"
              t-att-data-oe-id="o.id">
@@ -181,8 +185,9 @@
                     <tr>
                         <td class="title-band-main">
                             <div class="inv-title">
-                                <t t-if="o.move_type == 'out_refund'">CREDIT NOTE / <span class="ar" dir="rtl">إشعار دائن</span></t>
-                                <t t-elif="o.move_type == 'in_refund'">DEBIT NOTE / <span class="ar" dir="rtl">إشعار مدين</span></t>
+                                <t t-if="is_bill and o.move_type == 'in_refund'">VENDOR CREDIT NOTE / <span class="ar" dir="rtl">إشعار دائن مورد</span></t>
+                                <t t-elif="is_bill">VENDOR BILL / <span class="ar" dir="rtl">فاتورة مورد</span></t>
+                                <t t-elif="o.move_type == 'out_refund'">CREDIT NOTE / <span class="ar" dir="rtl">إشعار دائن</span></t>
                                 <t t-elif="not buyer_vat">SIMPLIFIED TAX INVOICE / <span class="ar" dir="rtl">فاتورة ضريبية مبسطة</span></t>
                                 <t t-else="">TAX INVOICE / <span class="ar" dir="rtl">فاتورة ضريبية</span></t>
                             </div>
@@ -207,7 +212,10 @@
                     <!-- Buyer Details -->
                     <td class="col-card">
                         <div class="info-card">
-                            <div class="card-title">Buyer Details / <span class="ar" dir="rtl">بيانات المشتري</span></div>
+                            <div class="card-title">
+                                <t t-if="is_bill">Seller Details / <span class="ar" dir="rtl">بيانات البائع</span></t>
+                                <t t-else="">Buyer Details / <span class="ar" dir="rtl">بيانات المشتري</span></t>
+                            </div>
                             <table class="tbl-detail">
                                 <tr>
                                     <td class="lbl-en">Customer Name</td>
@@ -218,6 +226,13 @@
                                     <td class="lbl-en">VAT No.</td>
                                     <td class="val"><t t-out="(o.partner_id and o.partner_id.vat) or ''"/></td>
                                     <td class="lbl-ar" dir="rtl">الرقم الضريبي</td>
+                                </tr>
+                                <!-- Vendor bills also carry the seller's commercial
+                                     registration; it is not printed on invoices. -->
+                                <tr t-if="is_bill">
+                                    <td class="lbl-en">CR No.</td>
+                                    <td class="val"><t t-out="(o.partner_id.company_registry if o.partner_id and 'company_registry' in o.partner_id._fields else '') or '-'"/></td>
+                                    <td class="lbl-ar" dir="rtl">رقم السجل التجاري</td>
                                 </tr>
                                 <tr>
                                     <td class="lbl-en">Address</td>
@@ -262,17 +277,31 @@
                                         <td class="val"><t t-out="source_doc or '-'"/></td>
                                         <td class="lbl-ar" dir="rtl">المستند المصدر</td>
                                     </tr>
-                                    <tr>
+                                    <!-- Vendor bills carry the seller's own reference
+                                         and have no salesman. -->
+                                    <tr t-if="is_bill">
+                                        <td class="lbl-en">Vendor Ref.</td>
+                                        <td class="val"><t t-out="o.ref or '-'"/></td>
+                                        <td class="lbl-ar" dir="rtl">مرجع المورد</td>
+                                    </tr>
+                                    <tr t-if="not is_bill">
                                         <td class="lbl-en">Salesman</td>
                                         <td class="val"><t t-out="o.invoice_user_id and o.invoice_user_id.name or ''"/></td>
                                         <td class="lbl-ar" dir="rtl">مندوب المبيعات</td>
                                     </tr>
                                     <tr>
                                         <!-- Company tax number (was: Currency, which is already
-                                             in every column header and in the totals) -->
-                                        <td class="lbl-en">Company VAT No.</td>
+                                             in every column header and in the totals). On a bill
+                                             the same number belongs to the buyer (us). -->
+                                        <td class="lbl-en">
+                                            <t t-if="is_bill">Buyer VAT No.</t>
+                                            <t t-else="">Company VAT No.</t>
+                                        </td>
                                         <td class="val"><t t-out="(company and company.vat) or '-'"/></td>
-                                        <td class="lbl-ar" dir="rtl">الرقم الضريبي للشركة</td>
+                                        <td class="lbl-ar" dir="rtl">
+                                            <t t-if="is_bill">الرقم الضريبي للمشتري</t>
+                                            <t t-else="">الرقم الضريبي للشركة</t>
+                                        </td>
                                     </tr>
                                 </table>
                         </div>
@@ -380,11 +409,14 @@
 
             <!-- =================== BOTTOM: ZATCA QR | TOTALS =================== -->
             <!-- Both columns are table cells of the same row, so they always end
-                 up the same height: no empty gap next to the taller one. -->
+                 up the same height: no empty gap next to the taller one.
+                 Vendor bills carry no ZATCA QR: both cells are skipped and the
+                 totals card takes the full width (see .has-bill in the SCSS),
+                 so nothing is evaluated for the QR either. -->
             <table class="tbl-bottom">
                 <tr>
-                    <!-- Left: ZATCA QR card -->
-                    <td class="qr-card">
+                    <!-- Left: ZATCA QR card (customer documents only) -->
+                    <td class="qr-card" t-if="not is_bill">
                         <div class="qr-cap">ZATCA QR</div>
                         <t t-set="qr_val" t-value="False"/>
                         <!-- Odoo 18: ZATCA Phase 1 QR lives in l10n_sa_qr_code_str (base64 TLV).
@@ -412,7 +444,7 @@
                         </t>
                     </td>
 
-                    <td class="col-gap"></td>
+                    <td class="col-gap" t-if="not is_bill"></td>
 
                     <!-- Right: totals card -->
                     <td class="totals-card">
@@ -625,13 +657,20 @@
             </table>
 
             <!-- =================== FOOTER: BANK DETAILS =================== -->
-            <!-- Bank Details, full width: two label/value pairs per row. -->
-            <table class="tbl-footer">
+            <!-- Bank Details, full width: two label/value pairs per row.
+                 On a vendor bill our own company bank is irrelevant, so the card
+                 is dropped entirely unless the bill carries the vendor's own
+                 bank account (o.partner_bank_id), which is then printed under a
+                 "Vendor Bank" title. -->
+            <table class="tbl-footer" t-if="not is_bill or o.partner_bank_id">
                 <tr>
                     <td class="col-full">
                         <div class="info-card">
-                            <div class="card-title">Bank Details / <span class="ar" dir="rtl">تفاصيل الحساب</span></div>
-                            <t t-set="bank" t-value="company and (company.bank_ids or company.partner_id.bank_ids)[:1] or False"/>
+                            <div class="card-title">
+                                <t t-if="is_bill">Vendor Bank / <span class="ar" dir="rtl">حساب المورد</span></t>
+                                <t t-else="">Bank Details / <span class="ar" dir="rtl">تفاصيل الحساب</span></t>
+                            </div>
+                            <t t-set="bank" t-value="o.partner_bank_id if is_bill else (company and (company.bank_ids or company.partner_id.bank_ids)[:1] or False)"/>
                             <table class="tbl-kv tbl-kv-wide">
                                 <tr>
                                     <td class="i-lbl">Bank Name:</td>
@@ -639,7 +678,7 @@
                                         <!-- Odoo 18: bank details are read from res.partner.bank
                                              (acc_number / acc_holder_name and the related bank_name / bank_bic). -->
                                         <t t-set="bank_name" t-value="bank and ((bank.bank_name if 'bank_name' in bank._fields else False) or (bank.bank_id.name if 'bank_id' in bank._fields and bank.bank_id else False)) or False"/>
-                                        <t t-out="bank_name or 'Al Rajhi Bank'"/>
+                                        <t t-out="bank_name or ('-' if is_bill else 'Al Rajhi Bank')"/>
                                     </td>
                                     <td class="i-lbl">Account Name:</td>
                                     <td class="i-val">
@@ -650,7 +689,7 @@
                                             <t t-out="bank.holder_name"/>
                                         </t>
                                         <t t-else="">
-                                            <t t-out="company.name if company else ''"/>
+                                            <t t-out="o.partner_id.name if is_bill else (company.name if company else '')"/>
                                         </t>
                                     </td>
                                 </tr>
@@ -663,7 +702,7 @@
                                         <t t-elif="bank and 'bank_id' in bank._fields and bank.bank_id and bank.bank_id.bic">
                                             <t t-out="bank.bank_id.bic"/>
                                         </t>
-                                        <t t-else="">RJHBSI</t>
+                                        <t t-else=""><t t-out="'-' if is_bill else 'RJHBSI'"/></t>
                                     </td>
                                     <td class="i-lbl">IBAN:</td>
                                     <td class="i-val mono">
@@ -676,7 +715,7 @@
                                         <t t-elif="bank and 'account_number' in bank._fields and bank.account_number">
                                             <t t-out="bank.account_number"/>
                                         </t>
-                                        <t t-else="">SA08 8000 0123 4567 8901 2345</t>
+                                        <t t-else=""><t t-out="'-' if is_bill else 'SA08 8000 0123 4567 8901 2345'"/></t>
                                     </td>
                                 </tr>
                             </table>
