@@ -82,11 +82,27 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     // Company block in the header uses the logo green: name, labels and the
     // address at normal weight, the values in bold green.
     .co-name {
-        font-size: 1.5em;
+        font-size: 1.35em;
         font-weight: 800;
         color: $logo-green;
         line-height: 1.15;
         letter-spacing: .2px;
+    }
+    // English and Arabic names on two isolated lines: the bidi run of one
+    // language can never be reordered into the other, and the trailing period
+    // of "... CO." stays attached at the end of its own line. Wrapping only
+    // happens at spaces, so a long name breaks between words, never mid-token.
+    .co-name-en,
+    .co-name-ar {
+        display: block;
+        unicode-bidi: isolate;
+        white-space: normal;
+    }
+    .co-name-en { direction: ltr; text-align: right; }
+    .co-name-ar {
+        direction: rtl;
+        text-align: right;
+        font-size: .9em;   // ~90% of the English size
     }
     .co-meta {
         font-size: .8em;
@@ -414,13 +430,18 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         vertical-align: middle;
     }
     .tbl-totals tr:last-child td { border-bottom: none; }
-    // Row labels: bold English in muted gray, bold Arabic in the main text
-    // colour so both stay clearly readable at this size.
-    .tot-lbl { color: $muted; font-weight: 700; }
+    // The whole totals card is bold - English and Arabic labels, the SAR column
+    // (header + values) and every amount - written once so all rows, including
+    // the down-payment ones, are covered automatically.
+    .totals-card td,
+    .totals-card th,
+    .totals-card span { font-weight: 700; }
+    // Row labels: English in muted gray, Arabic in the main text colour so
+    // both stay clearly readable at this size.
+    .tot-lbl { color: $muted; }
     .tot-lbl .ar { color: $text; font-family: $font-ar; }
     .tot-val {
         text-align: right;
-        font-weight: 800;
         color: $text;
         white-space: nowrap;
     }
@@ -434,7 +455,6 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .tbl-totals .tot-local {
         text-align: right;
         font-size: .88em;
-        font-weight: 800;
         color: $muted;
         white-space: nowrap;
         padding-left: 4px;
@@ -444,7 +464,6 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .tbl-totals .tot-local-discount { color: $danger; }
     .tbl-totals .tot-local-head td {
         font-size: .8em;
-        font-weight: 800;
         color: $muted;
         letter-spacing: .3px;
         padding-top: 2px;
@@ -456,7 +475,6 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .tbl-totals .tot-local-head .tot-local-head-cell {
         text-align: right;
         font-size: .8em;
-        font-weight: 800;
         color: $muted;
         letter-spacing: .3px;
         padding: 2px 6px 2px 4px;
@@ -480,7 +498,6 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         background: $primary;
         color: #fff !important;
         font-size: 1.12em;
-        font-weight: 800;
         border-top: 3px solid $accent;
         border-bottom: none;
         padding: 8px 10px;
@@ -525,6 +542,8 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         font-size: .92em;
         font-weight: 600;
         letter-spacing: .2px;
+        // the IBAN is printed unbroken (no spaces), so it must never wrap
+        white-space: nowrap;
     }
     // Full-width footer cell (Bank Details)
     .col-full { width: 100%; }

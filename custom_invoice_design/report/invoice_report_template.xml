@@ -162,7 +162,16 @@
                     </td>
 
                     <td class="hdr-company">
-                        <div class="co-name" dir="auto"><t t-out="company.name if company else ''"/></div>
+                        <!-- One combined "EN / AR" company name is split at
+                             " / " so each language gets its own isolated line
+                             and the bidi runs can never mix. -->
+                        <t t-set="co_parts" t-value="(company.name if company else '').split(' / ')"/>
+                        <t t-set="co_name_en" t-value="co_parts[0]"/>
+                        <t t-set="co_name_ar" t-value="' / '.join(co_parts[1:]) if len(co_parts) &gt; 1 else ''"/>
+                        <div class="co-name">
+                            <div class="co-name-en" dir="ltr"><t t-out="co_name_en"/></div>
+                            <div class="co-name-ar" dir="rtl" t-if="co_name_ar"><t t-out="co_name_ar"/></div>
+                        </div>
                         <div class="co-meta">
                             VAT No. / <span class="ar" dir="rtl">الرقم الضريبي</span>:
                             <b><t t-out="(company and company.vat) or '-'"/></b>
@@ -715,16 +724,14 @@
                                     </td>
                                     <td class="i-lbl">IBAN:</td>
                                     <td class="i-val mono">
-                                        <t t-if="bank and 'acc_number' in bank._fields and bank.acc_number">
-                                            <t t-out="bank.acc_number"/>
-                                        </t>
-                                        <t t-elif="bank and 'iban' in bank._fields and bank.iban">
-                                            <t t-out="bank.iban"/>
-                                        </t>
-                                        <t t-elif="bank and 'account_number' in bank._fields and bank.account_number">
-                                            <t t-out="bank.account_number"/>
-                                        </t>
-                                        <t t-else=""><t t-out="'-' if is_bill else 'SA08 8000 0123 4567 8901 2345'"/></t>
+                                        <!-- Printed on one line, without spaces and upper
+                                             case. Odoo 18 already provides the ready-made
+                                             sanitized_account_number; otherwise the raw
+                                             account number is cleaned here. The same `bank`
+                                             record is used for bills (o.partner_bank_id). -->
+                                        <t t-set="iban_raw" t-value="(bank.account_number if (bank and 'account_number' in bank._fields and bank.account_number) else (bank.acc_number if (bank and 'acc_number' in bank._fields and bank.acc_number) else (bank.iban if (bank and 'iban' in bank._fields and bank.iban) else '')))"/>
+                                        <t t-set="iban_txt" t-value="(bank.sanitized_account_number if (bank and 'sanitized_account_number' in bank._fields and bank.sanitized_account_number) else iban_raw.replace(' ', '').upper())"/>
+                                        <t t-out="iban_txt or ('-' if is_bill else 'SA0880000123456789012345')"/>
                                     </td>
                                 </tr>
                             </table>
