@@ -23,7 +23,8 @@
             <field name="dpi">96</field>
         </record>
 
-        <!-- Custom Invoice Report Action bound to account.move -->
+        <!-- Custom Invoice Report Action bound to account.move (all move types:
+             customer invoices/credit notes AND vendor bills/credit notes) -->
         <record id="action_report_custom_invoice" model="ir.actions.report">
             <field name="name">Custom Tax Invoice / فاتورة ضريبية</field>
             <field name="model">account.move</field>
@@ -33,7 +34,9 @@
             <field name="binding_model_id" ref="account.model_account_move"/>
             <field name="binding_type">report</field>
             <field name="paperformat_id" ref="paperformat_custom_invoice"/>
-            <field name="print_report_name">('Tax Invoice - %s' % (object.name or 'Draft'))</field>
+            <!-- Vendor bills / vendor credit notes download as "Bill - ...",
+                 customer documents keep the historical name. -->
+            <field name="print_report_name">('Bill - %s' % (object.name or 'Draft')) if object.move_type in ('in_invoice', 'in_refund') else ('Tax Invoice - %s' % (object.name or 'Draft'))</field>
         </record>
     </data>
 </odoo>

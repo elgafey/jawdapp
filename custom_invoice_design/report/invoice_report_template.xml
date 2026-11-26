@@ -195,10 +195,10 @@
                         <td class="title-band-meta">
                             <table class="chips">
                                 <tr>
-                                    <td><span class="chip">Invoice No. <t t-out="o.name or '/'"/></span></td>
+                                    <td><span class="chip"><t t-if="is_bill and o.move_type == 'in_refund'">Credit Note No. </t><t t-elif="is_bill">Bill No. </t><t t-else="">Invoice No. </t><t t-out="o.name or '/'"/></span></td>
                                 </tr>
                                 <tr>
-                                    <td><span class="chip">Date <t t-out="o.invoice_date or ''"/></span></td>
+                                    <td><span class="chip"><t t-if="is_bill and o.move_type == 'in_invoice'">Bill Date </t><t t-else="">Date </t><t t-out="o.invoice_date or ''"/></span></td>
                                 </tr>
                             </table>
                         </td>
@@ -252,7 +252,11 @@
                     <!-- Invoice Details -->
                     <td class="col-card">
                         <div class="info-card">
-                            <div class="card-title">Invoice Details / <span class="ar" dir="rtl">تفاصيل الفاتورة</span></div>
+                            <div class="card-title">
+                                <t t-if="is_bill and o.move_type == 'in_refund'">Credit Note Details / <span class="ar" dir="rtl" style="unicode-bidi: embed;">تفاصيل الإشعار</span></t>
+                                <t t-elif="is_bill">Bill Details / <span class="ar" dir="rtl" style="unicode-bidi: embed;">تفاصيل فاتورة المورد</span></t>
+                                <t t-else="">Invoice Details / <span class="ar" dir="rtl" style="unicode-bidi: embed;">تفاصيل الفاتورة</span></t>
+                            </div>
                             <!-- Source Document comes from the sales order(s) linked to this
                                  invoice (sale.order.origin), NOT from the invoice's own
                                  origin. sale_line_ids exists only when the sale module is
@@ -318,8 +322,8 @@
                             <span class="th-ar">م</span>
                         </th>
                         <th class="c-code">
-                            <span class="th-en">Item Code / Barcode</span>
-                            <span class="th-ar">رمز الصنف / الباركود</span>
+                            <span class="th-en">ITEM CODE</span>
+                            <span class="th-ar">رمز الصنف</span>
                         </th>
                         <th class="c-desc">
                             <span class="th-en">Item Name</span>

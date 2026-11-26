@@ -8,23 +8,23 @@
 // Design rules (wkhtmltopdf / old QtWebKit safe):
 //   * tables, inline-block and overflow:hidden only — NO flexbox, NO grid,
 //     NO CSS custom properties (SCSS variables are compiled away);
-//   * hairline separators (#d9e2e6) instead of heavy black borders;
+//   * hairline separators (#dacec2) instead of heavy black borders;
 //   * soft tinted cards with a 6px radius;
 //   * every size is relative (em) to the base font size that the QWeb template
 //     computes per invoice (font_pt), so fit-a..fit-d scale the whole page.
 // ============================================================================
 
-// ---- brand palette (defined once) -----------------------------------------
-$primary:  #0b4a54;   // dark teal  — brand rules and the single dark fill
-$accent:   #14808f;   // teal       — card bars, section titles
-$mid:      #cfe6ea;   // medium tint — title band, table head
-$tint:     #eef6f7;   // light tint — card backgrounds
-$tint-strong: #e1f0f3;   // stronger tint
-$gold:     #c8963e;   // small accents only: double rule, total-row top rule
+// ---- brand palette (defined once) — kraft fluting paper brand --------------
+$primary:  #6b4f36;   // dark kraft brown — rules, final total fill
+$accent:   #bd926a;   // kraft paper tan  — bars, section titles, rules
+$core:     #855f56;   // roll-core reddish brown — chips only
+$mid:      #ecdcc9;   // title band + table header background
+$tint:     #f8f2ea;   // cards background
+$tint-strong: #f1e6d6;
+$hairline: #dacec2;   // 1px separators
+$zebra:    #fbf8f3;   // even rows
 $text:     #1f2933;   // main text
-$muted:    #5b6b75;   // labels
-$hairline: #d9e2e6;   // 1px separators
-$zebra:    #f4f9fa;   // even rows
+$muted:    #6f6258;   // labels
 $danger:   #b3261e;   // discount value
 $radius:   6px;
 
@@ -57,14 +57,14 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
 
     // ---------------------------------------------------------------- header
     // Double rule under the company header: a 3px brand line straight under the
-    // cells, then a 2px gold hairline. `separate` (spacing 0) is what lets the
-    // two borders stack instead of collapsing into one.
+    // cells, then a 2px kraft-tan hairline. `separate` (spacing 0) is what lets
+    // the two borders stack instead of collapsing into one.
     .tbl-header {
         width: 100%;
         border-collapse: separate;
         border-spacing: 0;
         margin-bottom: 6px;
-        border-bottom: 2px solid $gold;
+        border-bottom: 2px solid $accent;
     }
     .tbl-header td {
         vertical-align: middle;
@@ -96,10 +96,13 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .co-meta-sep { color: $hairline; padding: 0 5px; }
 
     // ------------------------------------------------------------ title band
+    // Borderless 2-column table: title on the left, two stacked pill chips on
+    // the right. No cell borders and no vertical divider — only the brand bar
+    // on the left edge and the double rule at the bottom.
     .title-band {
         background: $mid;
         border-left: 4px solid $primary;
-        border-bottom: 3px solid $primary;
+        border-bottom: 4px double $accent;
         border-radius: $radius;
         padding: 7px 12px;
         margin: 0 0 6px 0;
@@ -108,13 +111,16 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .title-band-tbl {
         width: 100%;
         border-collapse: collapse;
+        border: none;
     }
     .title-band-tbl td {
         padding: 0;
         vertical-align: middle;
+        border: none;
     }
     .title-band-main { text-align: left; }
-    .title-band-meta { width: 33%; text-align: right; }
+    // sized for the 5.2cm chips, so the title keeps the whole left side
+    .title-band-meta { width: 5.4cm; text-align: right; }
     .inv-title {
         color: $primary;
         font-size: 1.32em;
@@ -129,22 +135,28 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     }
     .chips {
         border-collapse: collapse;
+        border: none;
         margin-left: auto;
     }
+    // One shared column, so both stacked pills always come out the same width.
     .chips td {
-        padding: 1px 0;
+        width: 5.2cm;
+        padding: 2px 0;   // small gap between the two pills
         text-align: right;
+        border: none;
     }
-    // Small solid brand chips: a tiny dark area, so the ink stays balanced.
+    // Roll-core pills: the only other (small) dark accent of the page.
     .chip {
-        display: inline-block;
-        background: $primary;
+        display: block;
+        box-sizing: border-box;
+        background: $core;
         color: #fff;
-        border-radius: 10px;
-        padding: 1px 6px;
+        border-radius: 12px;
+        padding: 2px 8px;
         font-size: .8em;
         font-weight: 700;
         letter-spacing: .3px;
+        text-align: center;
         white-space: nowrap;
         -webkit-print-color-adjust: exact;
     }
@@ -165,7 +177,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .col-card { width: 49%; }
     .col-gap { width: 2%; }
 
-    // Cards: light tint, a 4px teal bar on the left edge, hairline on the
+    // Cards: light tint, a 4px kraft-tan bar on the left edge, hairline on the
     // other three sides, 6px radius.
     .info-card {
         background: $tint;
@@ -182,18 +194,18 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         font-weight: 800;
         letter-spacing: 1.1px;
         text-transform: uppercase;
-        color: $accent;
+        color: $primary;
         padding-bottom: 4px;
         border-bottom: 1px solid $hairline;
         margin-bottom: 2px;
     }
-    // small filled gold square in front of every section title
+    // small filled kraft-tan square in front of every section title
     .card-title::before {
         content: "";
         display: inline-block;
         width: 6px;
         height: 6px;
-        background: $gold;
+        background: $accent;
         margin-right: 5px;
         vertical-align: middle;
         -webkit-print-color-adjust: exact;
@@ -298,7 +310,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         font-size: .95em;
     }
     // Body cells only: on the header cell the shared head colour must win, so
-    // "Item Code / Barcode" looks like every other column title.
+    // "ITEM CODE" looks like every other column title.
     .tbl-lines tbody .c-code { color: $muted; }
     .tbl-lines .c-desc {
         width: 33%;
@@ -365,7 +377,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         font-weight: 800;
         letter-spacing: 1.1px;
         text-transform: uppercase;
-        color: $accent;
+        color: $primary;
         margin-bottom: 4px;
     }
     // ~3.2cm so the ZATCA QR stays scannable
@@ -453,18 +465,18 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         letter-spacing: 0;
     }
     // The ONLY dark fill on the page: the final total row (the "Final Total
-    // after Down Payment" row shares this class). Gold rule on top, white bold
-    // text; the SAR-amount cell uses the 85%-white tint instead of pure white.
+    // after Down Payment" row shares this class). Kraft-tan rule on top, white
+    // bold text; the SAR-amount cell uses the #eadfcb tint instead of white.
     .row-grand .tot-local {
         border-right: none;
-        color: #d6e9ec !important;
+        color: #eadfcb !important;
     }
     .row-grand td {
         background: $primary;
         color: #fff !important;
         font-size: 1.12em;
         font-weight: 800;
-        border-top: 3px solid $gold;
+        border-top: 3px solid $accent;
         border-bottom: none;
         padding: 8px 10px;
         -webkit-print-color-adjust: exact;
