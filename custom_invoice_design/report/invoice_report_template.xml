@@ -257,14 +257,14 @@
                                 <t t-elif="is_bill">Bill Details / <span class="ar" dir="rtl" style="unicode-bidi: embed;">تفاصيل فاتورة المورد</span></t>
                                 <t t-else="">Invoice Details / <span class="ar" dir="rtl" style="unicode-bidi: embed;">تفاصيل الفاتورة</span></t>
                             </div>
-                            <!-- Source Document comes from the sales order(s) linked to this
-                                 invoice (sale.order.origin), NOT from the invoice's own
-                                 origin. sale_line_ids exists only when the sale module is
-                                 installed; the guard keeps the report renderable without it. -->
-                            <t t-set="so_orders"
-                               t-value="o.invoice_line_ids.sale_line_ids.order_id if 'sale_line_ids' in o.invoice_line_ids._fields else False"/>
-                            <t t-set="source_doc"
-                               t-value="' / '.join([x for x in so_orders.mapped('origin') if x]) if so_orders else ''"/>
+                            <!-- Source Document = the linked SO/PO number(s)
+                                 (o.invoice_origin); the whole row disappears
+                                 when there is none. Reference is built from the
+                                 invoice screen's "Customer Reference" and the
+                                 optional "Incoterm Location". -->
+                            <t t-set="ref_txt" t-value="o.ref or ''"/>
+                            <t t-set="loc_txt" t-value="o.incoterm_location if 'incoterm_location' in o._fields and o.incoterm_location else ''"/>
+                            <t t-set="ref_line" t-value="(ref_txt + ' * ( ' + loc_txt + ' )') if (ref_txt and loc_txt) else (ref_txt or ('( ' + loc_txt + ' )' if loc_txt else ''))"/>
                             <table class="tbl-detail">
                                     <tr>
                                         <td class="lbl-en">Due Date</td>
@@ -276,10 +276,15 @@
                                         <td class="val"><t t-out="o.invoice_payment_term_id and o.invoice_payment_term_id.name or '-'"/></td>
                                         <td class="lbl-ar" dir="rtl">شروط الدفع</td>
                                     </tr>
-                                    <tr>
-                                        <td class="lbl-en">Source Document</td>
-                                        <td class="val"><t t-out="source_doc or '-'"/></td>
-                                        <td class="lbl-ar" dir="rtl">المستند المصدر</td>
+                                    <tr t-if="o.invoice_origin">
+                                        <td class="lbl-en">Source Document /</td>
+                                        <td class="val"><t t-out="o.invoice_origin"/></td>
+                                        <td class="lbl-ar"><span dir="rtl" style="unicode-bidi: embed;">المستند المصدر</span></td>
+                                    </tr>
+                                    <tr t-if="ref_line and o.move_type in ('out_invoice', 'out_refund')">
+                                        <td class="lbl-en">Reference /</td>
+                                        <td class="val"><t t-out="ref_line"/></td>
+                                        <td class="lbl-ar"><span dir="rtl" style="unicode-bidi: embed;">المرجع</span></td>
                                     </tr>
                                     <!-- Vendor bills carry the seller's own reference
                                          and have no salesman. -->

@@ -26,6 +26,7 @@ $zebra:    #fbf8f3;   // even rows
 $text:     #1f2933;   // main text
 $muted:    #6f6258;   // labels
 $danger:   #b3261e;   // discount value
+$logo-green: #057d4d;   // company block in the page header (logo green)
 $radius:   6px;
 
 // ---- typography (no font files ship with the module, so these are only
@@ -78,20 +79,22 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         max-width: 170px;
         object-fit: contain;
     }
+    // Company block in the header uses the logo green: name, labels and the
+    // address at normal weight, the values in bold green.
     .co-name {
         font-size: 1.5em;
         font-weight: 800;
-        color: $primary;
+        color: $logo-green;
         line-height: 1.15;
         letter-spacing: .2px;
     }
     .co-meta {
         font-size: .8em;
-        color: $muted;
+        color: $logo-green;
         margin-top: 2px;
         line-height: 1.4;
     }
-    .co-meta b { color: $text; font-weight: 700; }
+    .co-meta b { color: $logo-green; font-weight: 700; }
     .co-meta .ar { font-family: $font-ar; }
     .co-meta-sep { color: $hairline; padding: 0 5px; }
 
@@ -403,7 +406,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .tbl-totals {
         width: 100%;
         border-collapse: collapse;
-        font-size: .9em;
+        font-size: .97em;
     }
     .tbl-totals td {
         padding: 5px 10px;
@@ -411,8 +414,10 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         vertical-align: middle;
     }
     .tbl-totals tr:last-child td { border-bottom: none; }
-    .tot-lbl { color: $muted; font-weight: 600; }
-    .tot-lbl .ar { font-family: $font-ar; }
+    // Row labels: bold English in muted gray, bold Arabic in the main text
+    // colour so both stay clearly readable at this size.
+    .tot-lbl { color: $muted; font-weight: 700; }
+    .tot-lbl .ar { color: $text; font-family: $font-ar; }
     .tot-val {
         text-align: right;
         font-weight: 800;
@@ -429,7 +434,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .tbl-totals .tot-local {
         text-align: right;
         font-size: .88em;
-        font-weight: 600;
+        font-weight: 800;
         color: $muted;
         white-space: nowrap;
         padding-left: 4px;
@@ -484,7 +489,8 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
     .row-grand .tot-lbl,
     .row-grand .tot-lbl .ar { color: #fff; }
     .row-payment td { font-size: .88em; }
-    .row-payment .tot-lbl { color: $muted; }
+    // (no explicit label colour here: .tot-lbl / .tot-lbl .ar already give the
+    // payment rows the same muted-EN / dark-Arabic treatment as the rest)
     .row-payment .tot-val { color: $text; }
 
     // -------------------------------------------------------- footer cards
@@ -595,7 +601,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
        purpose: with the same specificity the last rule wins, and a down
        payment invoice often lands on fit-a/fit-b. */
     &.has-dp {
-        .tbl-totals { font-size: .85em; }
+        .tbl-totals { font-size: .92em; }
         .tbl-totals td { padding: 3px 8px; }
         .row-grand td { padding: 5px 8px; }
         .qr-card { padding: 4px 8px; }
@@ -609,7 +615,7 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
        A4 page. Declared after fit-a..fit-d and .has-dp: with the same
        specificity the last rule wins. */
     &.has-local {
-        .tbl-totals { font-size: .82em; }
+        .tbl-totals { font-size: .88em; }
         .tbl-totals td { padding-left: 4px; padding-right: 4px; }
         .tbl-totals .tot-local { padding-left: 4px; padding-right: 6px; }
         .tbl-totals .tot-local-head td { padding-top: 1px; padding-bottom: 1px; }
