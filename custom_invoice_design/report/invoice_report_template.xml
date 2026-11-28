@@ -78,6 +78,32 @@
         <t t-set="dp_total" t-value="dp_untaxed + dp_tax"/>
         <t t-set="has_dp" t-value="bool(dp_lines)"/>
 
+        <!-- ============ TOTAL QUANTITY SUMMARY (printing only) ============
+             Only storable (inventory-tracked) products are counted: the line
+             must carry a product, its type must be 'consu' and Track Inventory
+             must be on. Services, non-tracked consumables, combo products,
+             description-only lines, sections, notes and down payment lines are
+             all ignored.
+             The lambda uses only literals and its own argument - no outer
+             t-set is captured - so QWeb's no-closure rule is respected. -->
+        <t t-set="goods_lines" t-value="o.invoice_line_ids.filtered(
+            lambda l: l.display_type == 'product'
+            and l.product_id
+            and l.product_id.type == 'consu'
+            and 'is_storable' in l.product_id._fields
+            and l.product_id.is_storable) - dp_lines"/>
+        <t t-set="goods_uoms" t-value="goods_lines.mapped('product_uom_id')"/>
+        <!-- One "<qty> <uom>" chunk per unit of measure, joined with " + ".
+             sum() over mapped() works on the plain list it returns, so no
+             generator expression (and therefore no closure) is involved.
+             '{:,.6g}' keeps the Qty column's decimals/trailing zeros and only
+             adds a thousands separator for large quantities. -->
+        <t t-set="qty_txt" t-value="''"/>
+        <t t-foreach="goods_uoms" t-as="uom">
+            <t t-set="uom_qty" t-value="sum(goods_lines.filtered_domain([('product_uom_id', '=', uom.id)]).mapped('quantity'))"/>
+            <t t-set="qty_txt" t-value="(qty_txt + ' + ' if qty_txt else '') + '{:,.6g}'.format(uom_qty) + ' ' + (uom.name or '')"/>
+        </t>
+
         <!-- Discount: the same value is printed in both totals branches. -->
         <t t-set="disc" t-value="sum(
             (l.price_unit * l.quantity) * (l.discount or 0) / 100.0
@@ -423,6 +449,18 @@
                         </t>
                     </t>
                 </tbody>
+            </table>
+
+            <!-- =================== TOTAL QUANTITY ===================
+                 Compact summary glued to the end of the lines table; rendered
+                 only when there is a storable product line to count. -->
+            <table class="tbl-qty-sum" t-if="goods_lines">
+                <tr>
+                    <td class="qty-sum-lbl">
+                        Total Quantity / <span dir="rtl" style="unicode-bidi: embed;">إجمالي الكمية</span>
+                    </td>
+                    <td class="qty-sum-val"><t t-out="qty_txt"/></td>
+                </tr>
             </table>
 
             <!-- =================== BOTTOM: ZATCA QR | TOTALS =================== -->

@@ -367,6 +367,35 @@ $font-ar: 'Cairo', 'Tajawal', 'DejaVu Sans', Arial, sans-serif;
         border-bottom: 1px solid $hairline;
     }
 
+    // ------------------------------------------ total quantity summary
+    // Compact row glued to the end of the lines table: same width, tinted
+    // background, hairline border, bold text, value right aligned. The
+    // negative margin cancels the lines table's bottom margin so the row
+    // stays attached to the table end (and never splits across pages).
+    .tbl-qty-sum {
+        width: 100%;
+        border-collapse: collapse;
+        border: 1px solid $hairline;
+        border-top: none;
+        background: $tint;
+        margin-top: -6px;
+        margin-bottom: 6px;
+        font-weight: 700;
+        page-break-inside: avoid;
+        -webkit-print-color-adjust: exact;
+    }
+    .tbl-qty-sum td {
+        padding: 3px 8px;
+        vertical-align: middle;
+    }
+    .qty-sum-lbl { color: $primary; }
+    .qty-sum-lbl .ar { font-family: $font-ar; }
+    .qty-sum-val {
+        text-align: right;
+        color: $text;
+        white-space: nowrap;
+    }
+
     // --------------------------------------------- bottom: QR | totals
     // Both cards are table cells of the same row, so they always share the
     // same height (no empty gap next to the taller one).
